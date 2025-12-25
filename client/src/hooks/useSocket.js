@@ -31,3 +31,4 @@ export function useSocket(roomId) {
 
   return { document, updateDocument };
 }
+
