@@ -15,13 +15,13 @@ const io = new Server(server, {
   },
 });
 
-// In-memory document store
 const rooms = new Map();
 
 io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
+  console.log("✅ User connected:", socket.id);
 
   socket.on("join_room", (roomId) => {
+    console.log(`➡️ ${socket.id} joined room ${roomId}`);
     socket.join(roomId);
 
     if (!rooms.has(roomId)) {
@@ -32,16 +32,25 @@ io.on("connection", (socket) => {
   });
 
   socket.on("document_update", ({ roomId, content }) => {
+    console.log(`✏️ Update in room ${roomId}`);
     rooms.set(roomId, content);
-    socket.to(roomId).emit("sync_document", content);
+
+    // broadcast to ALL users in room
+    io.to(roomId).emit("sync_document", content);
   });
 
   socket.on("disconnect", () => {
-    console.log("User disconnected:", socket.id);
+    console.log("❌ User disconnected:", socket.id);
   });
 });
 
+app.get("/", (req, res) => {
+  res.send("Hivemind AI Socket Server is running");
+});
+
+
 const PORT = 5000;
+
 server.listen(PORT, () => {
-  console.log(`Socket server running on http://localhost:${PORT}`);
+  console.log(`🚀 Socket server running on http://localhost:${PORT}`);
 });
